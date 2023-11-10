@@ -38,6 +38,9 @@ class IsoCollisionExample extends Scene {
 
     // Add some first cubes to our scene
     this.spawnCubes();
+
+    //this.physics.add.collider(player, tile);
+    //this.physics.add.collider(player, bombs, hitBomb, null, this);
   }
 
   update() {

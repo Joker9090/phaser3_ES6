@@ -1,6 +1,6 @@
 import Phaser, { Game, Scene } from 'phaser';
 import IsoPlugin, { IsoPhysics } from 'phaser3-plugin-isometric';
-import MapManager from './maps/mapManager.js';
+import MapManager from './maps/mapManager.ts';
 
 import cubeImg from "./assets/cube.png";
 import tileImg from "./assets/tile.png";
@@ -8,6 +8,7 @@ import tileImg from "./assets/tile.png";
 import * as map1 from "./maps/map_1.mp";
 import * as map1b from "./maps/map_1_b.mp";
 import * as map1Pos from "./maps/map_1_pos.mp";
+import * as map2 from "./maps/map2.mp"
 
 class IsoCollisionExample extends Scene {
   constructor() {
@@ -19,6 +20,7 @@ class IsoCollisionExample extends Scene {
     this.actualMap = null;
     this.actualMapB = null;
     this.actualMapPos = null;
+    this.actualMap2 = null;
   }
 
   preload() {
@@ -48,6 +50,8 @@ class IsoCollisionExample extends Scene {
     //console.log(this.isoPhysics.projector)
     this.spawnTiles();
     window.showLog = false;
+    
+    
   }
 
   update() {
@@ -55,9 +59,24 @@ class IsoCollisionExample extends Scene {
     // Collide cubes against each other
     const self = this;
     //this.isoPhysics.world.collide(this.isoGroup);
-    if (this.player) {
-      this.isoPhysics.world.collide(this.player, this.isoGroup, (a, b) => {
-        if (a.isPlayer && b.isJump) self.player.body.velocity.setTo(self.player.body.velocity.x,self.player.body.velocity.y,500);
+    if (this.player.isPlayer) {
+      //console.log('isoGroup: ', this.isoGroup)
+      this.isoPhysics.world.collide(this.player, this.isoGroup.getChildren(), (a, b) => {
+        //console.log('verifica colision: ', a, b);
+        if (a.isPlayer && b.isJump ) {
+          self.player.body.velocity.setTo(self.player.body.velocity.x,self.player.body.velocity.y,600);
+        }
+        if(a.isPlayer && b.isTileBlue) {
+          setTimeout(() => {
+            b.isoZ -= 300;
+            b.isJump = false;
+            b.isTileBlue = false;
+          }, 1000);
+        }
+        if (a.isPlayer && b.isTileGreen) {
+          self.player.setTint(0xE1C110); 
+        }
+       
       })
       this.player.body.velocity.setTo(0,0,this.player.body.velocity.z);
       if (this.cursors.left.isDown) {
@@ -82,7 +101,7 @@ class IsoCollisionExample extends Scene {
     this.isoGroup.getChildren().map(item => {
       self.player = item;
       var cam = self.cameras.main;
-      console.log(cam)
+      console.log(cam);
       window.player = self.player;
       self.player.setDepth(1);
       if (self.player.isPlayer) cam.startFollow(self.player, true);
@@ -99,7 +118,8 @@ class IsoCollisionExample extends Scene {
     console.log('map1b');
     console.log(map1b);
 
-    this.actualMap = new MapManager(map1, this);
+    console.log('game IsoCollisionExample: ', self);
+    this.actualMap = new MapManager(map1, self);
     const conf = {
       "1": (a, b, c, that) => {
         let tile;
@@ -137,6 +157,32 @@ class IsoCollisionExample extends Scene {
       }
     }
     this.actualMapB.drawMap(this.isoGroup, confb)
+
+    this.actualMap2 = new MapManager(map2, this);
+    const conf2 = {
+      "1": (a, b, c, that) => {
+        let tile;
+        tile = that.game.add.isoSprite(
+          that.setPosFromAnchor(b, c).x,
+          that.setPosFromAnchor(b, c).y,
+          2300,
+          'tile',
+          self.isoGroup
+        );
+        that.game.isoPhysics.world.enable(tile);
+        tile.body.collideWorldBounds = true;
+        tile.body.immovable = true;
+        tile.body.allowGravity = false;
+        
+        tile.setInteractive();
+        tile.setTint(0x272568);
+        tile.isJump = true;
+        tile.isTileBlue = true;
+  
+      }
+    }
+    this.actualMap2.drawMap(this.isoGroup, conf2)
+    
     //  for (var xx = 0; xx < 256; xx += 40) {
       //  for (var yy = 0; yy < 256; yy += 40) {
         // Create a tile using the new game.add.isoSprite factory method at the specified position.

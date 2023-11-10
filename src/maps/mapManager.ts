@@ -1,10 +1,46 @@
-import { Physics } from "phaser";
+import { Physics, Game, Scene, GameObjects } from "phaser";
+
+
+// @ts-ignore
+import IsoPlugin, { IsoPhysics } from 'phaser3-plugin-isometric';
+type IsoGame = {
+    add: {
+        isoSprite: any;
+    }
+}
+declare module 'phaser' {
+  interface Scene {
+    isoPhysics: typeof IsoPhysics;
+    game: Game extends IsoGame
+    //isoSprite(): void;
+  }
+}
+
+
+type ConfObject = {
+    "1"?: (a: string, b: string, c: string, that: MapManager) => void;
+    "3"?: (a: string, b: string, c: string, that: MapManager) => void;
+    "4"?: (a: string, b: string, c: string, that: MapManager) => void;
+    "5"?: (a: string, b: string, c: string, that: MapManager) => void;
+    "9"?: (a: string, b: string, c: string, that: MapManager) => void;
+}
+
+type Map = {
+    default: string;
+}
 
 export default class MapManager {
 
-  constructor(mapFile, game) {
+    game: Scene;
+    mapFile: string;
+    rows: string[];
+    posOfAnchor: [number, number];
+    distanceOfTiles: { width: number; height: number };
+  
+  constructor(map: Map, game: Scene) {
+    console.log('game mapManager: ', game);
     this.game = game;
-    this.mapFile = mapFile.default;
+    this.mapFile = map.default;
     this.rows = [];
     this.posOfAnchor = [0, 0];
     this.distanceOfTiles = { width: 40, height: 40 };
@@ -19,7 +55,7 @@ export default class MapManager {
     this.iterateMapRows();
   }
 
-  iterateMapRows(fn) {
+  iterateMapRows(fn?: Function) {
     let blocks;
     for (let row_i = 0; row_i < this.rows.length; row_i += 1) {
       blocks = this.rows[row_i].split(' ');
@@ -30,21 +66,22 @@ export default class MapManager {
     }
   }
 
-  setPosFromAnchor(rowI, blockI) {
+  setPosFromAnchor(rowI: number, blockI: number) {
     return {
       x: (this.posOfAnchor[0] + blockI) * this.distanceOfTiles.width,
       y: (this.posOfAnchor[1] + rowI) * this.distanceOfTiles.height
     };
   }
 
-  drawMap(isoGroup, conf = {}) {
-    let tile, cube;
+  drawMap(isoGroup: [], conf: ConfObject = {}) {
+    // tile and object should be GameObjects.IsoSprite types but IsoSprite is not defined
+    let tile: any, cube: any;
     const self = this;
 
-    this.iterateMapRows((a, b, c) => {
+    this.iterateMapRows((a: string, b: number, c: number) => {
       if (a === "1") {
         if (conf["1"] && typeof conf["1"] == "function") {
-          conf["1"](a, b, c, this);
+          conf["1"](a, b.toString(), c.toString(), this);
         } else {
           tile = self.game.add.isoSprite(
             self.setPosFromAnchor(b, c).x,
@@ -58,21 +95,21 @@ export default class MapManager {
           tile.body.immovable = true;
 
           tile.setInteractive();
-          tile.on('pointerover', function() {
-            this.setTint(0x86bfda);
-            this.isoZ += 5;
+          tile.on('pointerover', () => {
+            tile.setTint(0x86bfda);
+            tile.isoZ += 5;
           });
 
-          tile.on('pointerout', function() {
-            this.clearTint();
-            this.isoZ -= 5;
+          tile.on('pointerout', () => {
+            tile.clearTint();
+            tile.isoZ -= 5;
           });
         }
       }
 
       if (a === "3") {
         if (conf["3"] && typeof conf["3"] == "function") {
-          conf["3"](a, b, c, this);
+          conf["3"](a, b.toString(), c.toString(), this);
         } else {
 
           console.log('player', self.setPosFromAnchor(b, c))
@@ -88,7 +125,7 @@ export default class MapManager {
 
       if (a === "4") {
         if (conf["4"] && typeof conf["4"] == "function") {
-          conf["4"](a, b, c, this);
+          conf["4"](a, b.toString(), c.toString(), this);
         } else {
           tile = self.game.add.isoSprite(
             self.setPosFromAnchor(b, c).x,
@@ -110,7 +147,7 @@ export default class MapManager {
 
       if (a === "5") {
         if (conf["5"] && typeof conf["5"] == "function") {
-          conf["5"](a, b, c, this);
+          conf["5"](a, b.toString(), c.toString(), this);
         } else {
           tile = self.game.add.isoSprite(
             self.setPosFromAnchor(b, c).x,
@@ -132,7 +169,7 @@ export default class MapManager {
 
       if (a === "9") {
         if (conf["9"] && typeof conf["9"] == "function") {
-          conf["9"](a, b, c, this);
+          conf["9"](a, b.toString(), c.toString(), this);
         } else {
           tile = self.game.add.isoSprite(
             self.setPosFromAnchor(b, c).x,
