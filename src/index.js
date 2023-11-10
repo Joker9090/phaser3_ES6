@@ -96,7 +96,7 @@ class IsoCollisionExample extends Scene {
 
   drawPlayer() {
     const self = this;
-    this.actualMapPos = new MapManager(map1Pos, this);
+    this.actualMapPos = new MapManager(map1Pos.default, this);
     this.actualMapPos.drawMap(this.isoGroup);
     this.isoGroup.getChildren().map(item => {
       self.player = item;
@@ -113,13 +113,9 @@ class IsoCollisionExample extends Scene {
   spawnTiles () {
     this.drawPlayer();
     const self = this;
-    console.log('map1');
-    console.log(map1);
-    console.log('map1b');
-    console.log(map1b);
 
     console.log('game IsoCollisionExample: ', self);
-    this.actualMap = new MapManager(map1, self);
+    this.actualMap = new MapManager(map1.default, self);
     const conf = {
       "1": (a, b, c, that) => {
         let tile;
@@ -134,11 +130,12 @@ class IsoCollisionExample extends Scene {
         tile.body.collideWorldBounds = true;
         tile.body.immovable = true;
         tile.body.allowGravity = false;
+        return tile
       }
     }
     this.actualMap.drawMap(this.isoGroup, conf)
 
-    this.actualMapB = new MapManager(map1b, this);
+    this.actualMapB = new MapManager(map1b.default, this);
     const confb = {
       "1": (a, b, c, that) => {
         let tile;
@@ -158,9 +155,9 @@ class IsoCollisionExample extends Scene {
     }
     this.actualMapB.drawMap(this.isoGroup, confb)
 
-    this.actualMap2 = new MapManager(map2, this);
+    this.actualMap2 = new MapManager(map2.default, this);
     const conf2 = {
-      "1": (a, b, c, that) => {
+      "9": (a, b, c, that) => {
         let tile;
         tile = that.game.add.isoSprite(
           that.setPosFromAnchor(b, c).x,

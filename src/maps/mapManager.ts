@@ -1,32 +1,23 @@
 import { Physics, Game, Scene, GameObjects } from "phaser";
 
+type GameObjectsIsoSprite = GameObjects.Sprite & {
+  isoX: number;
+  isoY: number;
+  isoZ: number;
 
-// @ts-ignore
-import IsoPlugin, { IsoPhysics } from 'phaser3-plugin-isometric';
-type IsoGame = {
-    add: {
-        isoSprite: any;
-    }
-}
-declare module 'phaser' {
-  interface Scene {
-    isoPhysics: typeof IsoPhysics;
-    game: Game extends IsoGame
-    //isoSprite(): void;
-  }
+  body: Physics.Arcade.Body;
+
+  isPlayer?: boolean,
+  isTileGreen?: boolean,
+  isJump?: boolean,
 }
 
+type IsoAdd = GameObjects.GameObjectFactory & {
+      isoSprite: (x:number,y:number,z:number,text:string,group: Phaser.GameObjects.Group | undefined) => GameObjectsIsoSprite;
+}
 
 type ConfObject = {
-    "1"?: (a: string, b: string, c: string, that: MapManager) => void;
-    "3"?: (a: string, b: string, c: string, that: MapManager) => void;
-    "4"?: (a: string, b: string, c: string, that: MapManager) => void;
-    "5"?: (a: string, b: string, c: string, that: MapManager) => void;
-    "9"?: (a: string, b: string, c: string, that: MapManager) => void;
-}
-
-type Map = {
-    default: string;
+    [key:string]: (a: string, b: number, c: number, that: MapManager) => void;
 }
 
 export default class MapManager {
@@ -37,10 +28,10 @@ export default class MapManager {
     posOfAnchor: [number, number];
     distanceOfTiles: { width: number; height: number };
   
-  constructor(map: Map, game: Scene) {
-    console.log('game mapManager: ', game);
+  constructor(map: string, game: Scene) {
+    console.log('BARTO game mapManager: ', map, game);
     this.game = game;
-    this.mapFile = map.default;
+    this.mapFile = map;
     this.rows = [];
     this.posOfAnchor = [0, 0];
     this.distanceOfTiles = { width: 40, height: 40 };
@@ -73,17 +64,18 @@ export default class MapManager {
     };
   }
 
-  drawMap(isoGroup: [], conf: ConfObject = {}) {
+  drawMap(isoGroup: Phaser.GameObjects.Group, conf: ConfObject = {}) {
     // tile and object should be GameObjects.IsoSprite types but IsoSprite is not defined
-    let tile: any, cube: any;
+    let tile: GameObjectsIsoSprite, cube: GameObjectsIsoSprite;
     const self = this;
 
     this.iterateMapRows((a: string, b: number, c: number) => {
       if (a === "1") {
         if (conf["1"] && typeof conf["1"] == "function") {
-          conf["1"](a, b.toString(), c.toString(), this);
+          const tile = conf["1"](a, b, c, self);
+          console.log("BARTO tile, 1",tile)
         } else {
-          tile = self.game.add.isoSprite(
+          tile = (self.game.add as IsoAdd).isoSprite(
             self.setPosFromAnchor(b, c).x,
             self.setPosFromAnchor(b, c).y,
             2100,
@@ -93,41 +85,33 @@ export default class MapManager {
           self.game.isoPhysics.world.enable(tile);
           tile.body.collideWorldBounds = true;
           tile.body.immovable = true;
+          console.log("BARTO tile, 2",tile)
 
-          tile.setInteractive();
-          tile.on('pointerover', () => {
-            tile.setTint(0x86bfda);
-            tile.isoZ += 5;
-          });
-
-          tile.on('pointerout', () => {
-            tile.clearTint();
-            tile.isoZ -= 5;
-          });
+         
         }
       }
 
       if (a === "3") {
         if (conf["3"] && typeof conf["3"] == "function") {
-          conf["3"](a, b.toString(), c.toString(), this);
+          conf["3"](a, b, c, this);
         } else {
 
           console.log('player', self.setPosFromAnchor(b, c))
-          cube = self.game.add.isoSprite(self.setPosFromAnchor(b, c).x, self.setPosFromAnchor(b, c).y, 2150, 'cube', isoGroup);
+          cube = (self.game.add as IsoAdd).isoSprite(self.setPosFromAnchor(b, c).x, self.setPosFromAnchor(b, c).y, 2150, 'cube', isoGroup);
           // cube.setScale(2);
           self.game.isoPhysics.world.enable(cube);
           cube.isoZ += 10;
           cube.body.collideWorldBounds = true;
           cube.isPlayer = true;
-          cube.body.bounce.set(1, 1, 0.2);
+          cube.body.bounce.set(1, 1);
         }
       }
 
       if (a === "4") {
         if (conf["4"] && typeof conf["4"] == "function") {
-          conf["4"](a, b.toString(), c.toString(), this);
+          conf["4"](a, b, c, this);
         } else {
-          tile = self.game.add.isoSprite(
+          tile = (self.game.add as IsoAdd).isoSprite(
             self.setPosFromAnchor(b, c).x,
             self.setPosFromAnchor(b, c).y,
             2500,
@@ -140,16 +124,15 @@ export default class MapManager {
           tile.body.immovable = true;
           tile.body.allowGravity = false;
           tile.isTileGreen = true;
-        
           tile.setTint(0x4EC624);
         }
       }
 
       if (a === "5") {
         if (conf["5"] && typeof conf["5"] == "function") {
-          conf["5"](a, b.toString(), c.toString(), this);
+          conf["5"](a, b, c, this);
         } else {
-          tile = self.game.add.isoSprite(
+          tile = (self.game.add as IsoAdd).isoSprite(
             self.setPosFromAnchor(b, c).x,
             self.setPosFromAnchor(b, c).y,
             2100,
@@ -169,15 +152,16 @@ export default class MapManager {
 
       if (a === "9") {
         if (conf["9"] && typeof conf["9"] == "function") {
-          conf["9"](a, b.toString(), c.toString(), this);
+          conf["9"](a, b, c, this);
         } else {
-          tile = self.game.add.isoSprite(
+          tile = (self.game.add as IsoAdd).isoSprite(
             self.setPosFromAnchor(b, c).x,
             self.setPosFromAnchor(b, c).y,
             0,
             'tile',
             isoGroup
           );
+          console.log("BARTO", tile)
 
           self.game.isoPhysics.world.enable(tile);
           tile.body.collideWorldBounds = true;
