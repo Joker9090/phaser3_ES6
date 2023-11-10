@@ -9,6 +9,7 @@ import * as map1 from "./maps/map_1.mp";
 import * as map1b from "./maps/map_1_b.mp";
 import * as map1Pos from "./maps/map_1_pos.mp";
 import * as map2 from "./maps/map2.mp"
+import Movement1 from './movement/movement1.ts';
 
 class IsoCollisionExample extends Scene {
   constructor() {
@@ -50,8 +51,9 @@ class IsoCollisionExample extends Scene {
     //console.log(this.isoPhysics.projector)
     this.spawnTiles();
     window.showLog = false;
-    
-    
+    this.Movement1 = new Movement1(this.player, this, this.cursors);
+
+
   }
 
   update() {
@@ -78,17 +80,8 @@ class IsoCollisionExample extends Scene {
         }
        
       })
-      this.player.body.velocity.setTo(0,0,this.player.body.velocity.z);
-      if (this.cursors.left.isDown) {
-          this.player.body.velocity.setTo(-300,this.player.body.velocity.y,this.player.body.velocity.z);
-      } else if (this.cursors.right.isDown) {
-          this.player.body.velocity.setTo(300,this.player.body.velocity.y,this.player.body.velocity.z);
-      }
-      if (this.cursors.up.isDown) {
-          this.player.body.velocity.setTo(this.player.body.velocity.x,-300,this.player.body.velocity.z);
-      } else if (this.cursors.down.isDown) {
-          this.player.body.velocity.setTo(this.player.body.velocity.x,300,this.player.body.velocity.z);
-      }
+
+      this.Movement1.update()
 
     }
 
