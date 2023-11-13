@@ -29,7 +29,6 @@ export default class MapManager {
     distanceOfTiles: { width: number; height: number };
   
   constructor(map: string, game: Scene) {
-    console.log('BARTO game mapManager: ', map, game);
     this.game = game;
     this.mapFile = map;
     this.rows = [];
@@ -69,11 +68,11 @@ export default class MapManager {
     let tile: GameObjectsIsoSprite, cube: GameObjectsIsoSprite;
     const self = this;
 
+
     this.iterateMapRows((a: string, b: number, c: number) => {
       if (a === "1") {
         if (conf["1"] && typeof conf["1"] == "function") {
           const tile = conf["1"](a, b, c, self);
-          console.log("BARTO tile, 1",tile)
         } else {
           tile = (self.game.add as IsoAdd).isoSprite(
             self.setPosFromAnchor(b, c).x,
@@ -82,12 +81,10 @@ export default class MapManager {
             'tile',
             isoGroup
           );
+          console.log('tamaño de tileee: ', tile.displayWidth, tile.displayHeight)
           self.game.isoPhysics.world.enable(tile);
           tile.body.collideWorldBounds = true;
           tile.body.immovable = true;
-          console.log("BARTO tile, 2",tile)
-
-         
         }
       }
 
@@ -118,7 +115,7 @@ export default class MapManager {
             'tile',
             isoGroup
           );
-
+          console.log('tileGreen: ', tile);
           self.game.isoPhysics.world.enable(tile);
           tile.body.collideWorldBounds = true;
           tile.body.immovable = true;
@@ -161,7 +158,6 @@ export default class MapManager {
             'tile',
             isoGroup
           );
-          console.log("BARTO", tile)
 
           self.game.isoPhysics.world.enable(tile);
           tile.body.collideWorldBounds = true;

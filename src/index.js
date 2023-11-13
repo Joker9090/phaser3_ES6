@@ -9,7 +9,10 @@ import * as map1 from "./maps/map_1.mp";
 import * as map1b from "./maps/map_1_b.mp";
 import * as map1Pos from "./maps/map_1_pos.mp";
 import * as map2 from "./maps/map2.mp"
-import Movement1 from './movement/movement1.ts';
+import Movement1 from "./movement/movement1.ts"
+import Movement2 from "./movement/movement2.ts"
+import Movement3 from "./movement/movement3.ts"
+
 
 class IsoCollisionExample extends Scene {
   constructor() {
@@ -51,20 +54,16 @@ class IsoCollisionExample extends Scene {
     //console.log(this.isoPhysics.projector)
     this.spawnTiles();
     window.showLog = false;
-    this.Movement1 = new Movement1(this.player, this, this.cursors);
-
-
+    this.Movement1 = new Movement1(this.player.body, this, this.cursors, this.isoGroup);
+    this.Movement2 = new Movement2(this.player.body, this, this.cursors, this.isoGroup);
+    this.Movement3 = new Movement3(this.player.body, this, this.cursors, this.isoGroup);
   }
 
   update() {
-
-    // Collide cubes against each other
     const self = this;
-    //this.isoPhysics.world.collide(this.isoGroup);
+    this.Movement1.update();
     if (this.player.isPlayer) {
-      //console.log('isoGroup: ', this.isoGroup)
       this.isoPhysics.world.collide(this.player, this.isoGroup.getChildren(), (a, b) => {
-        //console.log('verifica colision: ', a, b);
         if (a.isPlayer && b.isJump ) {
           self.player.body.velocity.setTo(self.player.body.velocity.x,self.player.body.velocity.y,600);
         }
@@ -80,8 +79,6 @@ class IsoCollisionExample extends Scene {
         }
        
       })
-
-      this.Movement1.update()
 
     }
 
