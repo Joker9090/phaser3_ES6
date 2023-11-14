@@ -10,18 +10,24 @@ export type PhysicsIso = Phaser.Physics.Arcade.Body & {
         setTo: (a: number, b: number, c: number) => void
     }
 }
+
+export type ConfigMovement = {
+    tileSize: number;
+}
+
 export default class Movement3 {
     body: PhysicsIso;
     game: Phaser.Scene;
     cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     movementTime: number = 0;
-    tileSize: number = 40;
+    config: ConfigMovement;
 
-    constructor(body: PhysicsIso, game: Phaser.Scene, cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
+    constructor(body: PhysicsIso, game: Phaser.Scene, cursors: Phaser.Types.Input.Keyboard.CursorKeys, config: ConfigMovement) {
         this.body = body;
         console.log(body)
         this.game = game;
         this.cursors = cursors;
+        this.config = config;
     }
 
     update() {
@@ -30,17 +36,17 @@ export default class Movement3 {
         if (position) {
             if(this.game.time.now - this.movementTime > 200) {
                 if (this.cursors.left.isDown) {
-                    position.x -= this.tileSize;
+                    position.x -= this.config.tileSize;
                     this.movementTime = this.game.time.now;
                 } else if (this.cursors.right.isDown) {
-                    position.x += this.tileSize;
+                    position.x += this.config.tileSize;
                     this.movementTime = this.game.time.now;
                 }
                 if (this.cursors.up.isDown) {
-                    position.y -= this.tileSize;
+                    position.y -= this.config.tileSize;
                     this.movementTime = this.game.time.now;
                 } else if (this.cursors.down.isDown) {
-                    position.y += this.tileSize;
+                    position.y += this.config.tileSize;
                     this.movementTime = this.game.time.now;
                 }
             }

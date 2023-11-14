@@ -9,9 +9,9 @@ import * as map1 from "./maps/map_1.mp";
 import * as map1b from "./maps/map_1_b.mp";
 import * as map1Pos from "./maps/map_1_pos.mp";
 import * as map2 from "./maps/map2.mp"
-import Movement1 from "./movement/movement1.ts"
-import Movement2 from "./movement/movement2.ts"
-import Movement3 from "./movement/movement3.ts"
+import MovVelocity from "./movement/MovVelocity.ts"
+import MovForce from "./movement/MovForce.ts"
+import MovTile from "./movement/movTile.ts"
 
 
 class IsoCollisionExample extends Scene {
@@ -54,14 +54,14 @@ class IsoCollisionExample extends Scene {
     //console.log(this.isoPhysics.projector)
     this.spawnTiles();
     window.showLog = false;
-    this.Movement1 = new Movement1(this.player.body, this, this.cursors, this.isoGroup);
-    this.Movement2 = new Movement2(this.player.body, this, this.cursors, this.isoGroup);
-    this.Movement3 = new Movement3(this.player.body, this, this.cursors, this.isoGroup);
+    this.MovVelocity = new MovVelocity(this.player.body, this, this.cursors, {pxVelocity: 300});
+    this.MovForce = new MovForce(this.player.body, this, this.cursors, {pxVelocity: 300, pxForce: 4});
+    this.MovTile = new MovTile(this.player.body, this, this.cursors, {tileSize: 40});
   }
 
   update() {
     const self = this;
-    this.Movement1.update();
+    this.MovTile.update();
     if (this.player.isPlayer) {
       this.isoPhysics.world.collide(this.player, this.isoGroup.getChildren(), (a, b) => {
         if (a.isPlayer && b.isJump ) {
